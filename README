@@ -1,0 +1,73 @@
+Training ResNet50 with ImageNet1K for 5 Epoch
+No warmup epochs included.
+
+1) cuda/11.2.2(default)      3) intelpython3/2020.0.014   5) gcc/10.2.0                7) nccl/2.10.3.1             9) ucx/1.8.0                11) pytorch/1.9.0            13) horovod/0.22.1_torch
+  2) dl/2020                   4) cudnn/8.2.2               6) mkl/2019                  8) gdrcopy/2.0              10) openmpi-gpu/4.0.3        12) torchvision/0.6.1
+
+Software:
+- CUDAToolkit 11.2.2
+- CUDNN 8.2.2
+- GCC 10.2.0
+- Python 3.7
+- Pytorch 1.9.0 + MKL 2019
+- NCCL 2.10.3.1
+- OpenMPI 4.0.3 with UCX, GDRCopy and CUDA enabled
+- Horovod 0.22.1
+
+
+How to run the Benchmark:
+1. In the directory where you wish to launch the Benchmark from, untar the tarball
+   imagenet1K.tar.gz
+
+2. This should create the following directory structure:
+imagenet1K
+├── run_dir
+│   ├── large_batch
+│   │   ├── GPU16_node4.slurm
+│   │   ├── GPU1_node1.slurm
+│   │   ├── GPU32_node8.slurm
+│   │   ├── GPU4_node1.slurm
+│   │   └── GPU8_node2.slurm
+│   └── small_batch
+│       ├── GPU16_node4_b16.slurm
+│       ├── GPU32_node8_b16.slurm
+│       ├── GPU4_node1_b16.slurm
+│       └── GPU8_node2_b16.slurm
+└── scripts
+    └── train_resnet50.py
+
+   
+
+3. The benchmark expects that you have access to ImageNet1K and have processed them (ILSVRC 2012) and processed it in train, and val directories. The resulting "train" directory should have 1281167 files in total in 1000 directory. The "val" directory should have 50000 files in total in 1000 directories.
+
+   Assuming you have access to tarballs from ImageNet website, you may prepare the dataset in one of the three ways:
+   1- using ImageNet Development Kit  (a set of MatLab files available Download page)
+   2- There is a script you can use to create the dataset: "https://github.com/kaust-vislab/ILSVR-classification-localization-data". You can run on the downloaded tarballs
+   3- You can use "torchvision" to create the dataset from the tarballs with the code sinppet as below:
+------------------------
+import torch
+import torchvision 
+import os
+
+data_dir=os.getenv('PWD')
+
+torchvision.datasets.ImageNet(data_dir,split='train')
+torchvision.datasets.ImageNet(data_dir,split='val')
+------------------------
+   
+
+   Please set the DATA_DIR variable with absolute path to ImageNet1K dataset
+   export DATA_DIR=/path/to/imagenet
+   By default it is set to the local storage of compute nodes on KSL's Ibex cluster.
+ 
+   Two different cases are considered here. 
+   1- The large batch case runs the training with batch size per GPU of 256. 
+   2- The small batch case runs the training with batch size per GPU of 16, making it commuincation expenseive.
+   
+   If you have SLURM installation, you can submit the job. Otherwise please modify according to your environment.
+   The filename of each jobscript identifies the resuorces requried for that job. 
+   E.g. GPU16_node4.slurm implies that 4 nodes of 4 GPUs each are required to run this job.
+   Each job produces a run directory where it creates "output.txt" file which has the relevant timings and model performance.
+   Note: PyTorch 1.9.0 thorws a few warning regarding Caffe2, please ignore those if you are examining the "output.txt". This bug has been fixed in 1.9.1 according to change logs.
+
+4. To capture the performance analytics to be inserted in the provided benchmark evaluation spreadsheet, refer to the end of the "output.txt" file where are the relevant metrics are printed.
