@@ -1,0 +1,18 @@
+FROM nvcr.io/nvidia/pytorch:22.12-py3 AS builder
+WORKDIR /tmp
+RUN git clone --recursive https://github.com/horovod/horovod horovod \
+&&  cd horovod \
+&&  git checkout v0.28.0 \
+&&  git submodule sync && git submodule update --init --recursive 
+WORKDIR /tmp/horovod
+ENV CC=mpicc CXX=mpicxx HOROVOD_WITH_MPI=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITHOUT_TENSORFLOW=1 HOROVOD_WITHOUT_MXNET=1 HOROVOD_WITHOUT_GLOO=1 HOROVOD_BUILD_CUDA_CC_LIST=70,80,90 
+RUN pip install .
+WORKDIR /tmp
+RUN git clone -b v0.8.3 https://github.com/microsoft/DeepSpeed.git Deepspeed-0.8.3 
+WORKDIR /tmp/Deepspeed-0.8.3
+RUN pip install . \
+&&  pip install tensorboardX boto3 h5py
+RUN env MPICC=mpicc pip install mpi4py
+WORKDIR /workspace
+RUN rm -rf /tmp/*
+ 
