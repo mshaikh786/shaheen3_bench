@@ -13,11 +13,13 @@ ARG TARGETPLATFORM
 COPY triton-1.1.1-cp38-cp38-linux_aarch64.whl .
 SHELL ["/bin/bash", "-c"]
 RUN if [ "$TARGETPLATFORM" == "linux/arm64" ]; then pip install --verbose --prefix=/software /tmp/triton-1.1.1-cp38-cp38-linux_aarch64.whl; else pip install --verbose --prefix=/software triton ; fi
+RUN pip install --prefix=/software tensorboardX boto3 h5py
+RUN env MPICC=mpicc pip install --prefix=/software mpi4py
 
-WORKDIR /tmp/Deepspeed-0.8.3
-RUN pip install . \
-&&  pip install tensorboardX boto3 h5py
-RUN env MPICC=mpicc pip install mpi4py
+WORKDIR /tmp
+RUN git clone -b v0.8.3 https://github.com/microsoft/DeepSpeed.git DeepSpeed-0.8.3 \
+&&  cd DeepSpeed-0.8.3 \
+&&  pip install --prefix=/software . 
 WORKDIR /workspace
 RUN rm -rf /tmp/*
  
