@@ -20,6 +20,8 @@ WORKDIR /tmp
 RUN git clone -b v0.8.3 https://github.com/microsoft/DeepSpeed.git DeepSpeed-0.8.3 \
 &&  cd DeepSpeed-0.8.3 \
 &&  pip install --prefix=/software . 
+
+ENV PYTHONPATH=/software/lib/python3.8/site-packages:${PYTHONPATH}
 WORKDIR /workspace
 RUN rm -rf /tmp/*
  
