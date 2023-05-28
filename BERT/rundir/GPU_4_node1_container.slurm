@@ -1,21 +1,20 @@
-#!/bin/bash
-#SBATCH --job-name=g4_N1_s128_b64
-#SBATCH --gres=gpu:4
-#SBATCH --cpus-per-task=16
-#SBATCH --ntasks=1
+#!/bin/bash 
+#SBATCH --job-name=G4N1B256
+#SBATCH --time=0:30:00
 #SBATCH --nodes=1
-#SBATCH --mem=200G
-#SBATCH --constraint=a100,4gpus
-#SBATCH --reservation=A100
-#SBATCH --time=01:00:00
-#SBATCH --account=ibex-cs
-#SBATCH --output=%x-%J.out
-#SBATCH --error=%x-%J.out
+#SBATCH --ntasks=4
+#SBATCH -p amp
+#SBATCH --constraint=gpu,a100
 
-module load singularity 
-export IMAGE=${BASEDIR}/images/torch-horovod-114-0280-v2-x86.sif 
+
+nvidia-smi 
+nvidia-smi topo -m 
+
+export BASEDIR=/global/scratch/users/hateml/mohsin/shaheen3_bench
+source ~/mohsin/activate_apptainer.sh
+export IMAGE=${BASEDIR}/images/torch-horovod-114-0280-v2-aarch64.sif 
 export rundir=${PWD}
-export base_dir=${rundir}/../..
+export base_dir=${rundir}/..
 export config_files=${base_dir}/config_files
 export src=${base_dir}/src
 export SINGULARITYENV_PREPEND_PATH=/software/bin
@@ -26,8 +25,6 @@ export DATA_DIR=/data
 export NUM_GPUS=4 #$(echo $SLURM_JOB_GPUS | awk -F "," '{print NF}')
 export TOTAL_GPUS=4 #$(expr ${NUM_GPUS} \* ${SLURM_NNODES})
 
-#export HOSTFILE=host.list.${SLURM_JOBID}
-#python ${src}/wrapper.py ${SLURM_NNODES}
 
 
 SEQ_LEN=128
@@ -42,7 +39,11 @@ mkdir -p $OUTPUT_DIR
 
 export BIND_MOUNT="-B ${BASEDIR},${BASEDIR}/datasets/bert_dataset:/data"
 
-time -p singularity run --nv ${BIND_MOUNT} ${IMAGE} deepspeed --num_nodes=1 --num_gpus=${TOTAL_GPUS}  ${src}/deepspeed_train.py \
+export HOSTFILE=hostfile
+singularity run ${BIND_MOUNT} ${IMAGE} python ${src}/wrapper.py 1
+
+
+time -p singularity run --nv ${BIND_MOUNT} ${IMAGE} deepspeed --num_nodes=1 --num_gpus=${TOTAL_GPUS} --hostfile ./hostfile  ${src}/deepspeed_train.py \
 --cf ${config_files}/ksl_bert_large.json \
 --max_seq_length ${SEQ_LEN} \
 --output_dir $OUTPUT_DIR \

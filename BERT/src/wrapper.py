@@ -8,7 +8,7 @@ if hosts.stderr.decode('utf-8') is not "":
       print('stderr: ',hosts.stderr.decode('utf-8'))
 
 hosts=hosts.stdout.decode('utf-8').strip().split('\n')
-f = open('host.list.%s' % os.getenv('SLURM_JOBID'),'w')
+f = open('hostfile', 'w')
 num_gpus = int(os.getenv('NUM_GPUS'))
 for host in hosts:
   f.write("%s slots=%d\n" %(host,num_gpus))
