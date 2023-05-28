@@ -1,0 +1,52 @@
+
+BERT large uncased pre-training task on Wiki English corpus
+Sequence size: 128
+Per GPU batch size: 64
+
+
+Software:
+- CUDAToolkit 11.2.2
+- CUDNN 8.2.2
+- GCC 8.2.0
+- Pytorch 1.9.0 + MKL 2019
+- NCCL 2.10.3.1
+- OpenMPI 4.0.3 with UCX, GDRCopy and CUDA enabled
+- DeepSpeed 0.5.4
+
+Installing DeepSpeed:
+git clone -b v0.5.4 --recursive https://github.com/microsoft/DeepSpeed.git DeepSpeed-0.5.4
+ Install command:
+  INSTALL_DIR=/install/path/for/deepspeed
+  pip install --prefix=$INSTALL_DIR triton 
+  export PYTHONPATH=$INSTALL_DIR/lib/python3.7/site-packages:$PYTHONPATH
+  DS_BUILD_OPS=1 pip install --prefix=/sw/csgv/dl/apps/deepspeed/0.5.4 . --global-option="build_ext" --global-option="-j8"
+  
+  This should take a few minutes.
+  
+
+
+How to run the Benchmark:
+1. In the directory where you wish to launch the Benchmark from, untar both
+   bert_bench.tar
+   bert_dataset.tar.gz
+
+
+2. This should create the following directory structure:
+   bert_dataset
+   config_files  
+   README  
+   rundir  
+   src
+3. For different GPU counts there is a run directory in directory "rundir" and a corresponding SLURM jobscript.
+   If you have SLURM installation, you can submit the job. Otherwise please modify according to your environment.
+
+   If you wish to extract the dataset in a directory other than current working directory, please set the following environment variable with absolute path to dataset:
+   export DATA_DIR=/path/to/extracted/dataset
+
+   Each run should produce a model checkpoint directory where job was submitted from, an output file starting with "g#_N#_s128_b64.out" and a "host.list"
+
+
+4. To run analytics and create a report of a compeleted, run the following on the job output (e.g. for 1 GPU 1 Node job output):
+   python src/report.py --file g1_N1_s128_b64 
+
+   This should print three parameters. Please insert them in the provided benchmark evaluation sheet.
