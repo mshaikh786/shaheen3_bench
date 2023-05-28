@@ -1,22 +1,21 @@
-#!/bin/bash
-#SBATCH --job-name=SN_feat
-#SBATCH --time=01:00:00
-#SBATCH --gres=gpu:4
-#SBATCH --constraint=a100,4gpus
-#SBATCH --reservation=A100
+#!/bin/bash 
+#SBATCH --job-name=G4N1
+#SBATCH --time=0:30:00
+#SBATCH --nodes=1
 #SBATCH --ntasks=4
-#SBATCH --tasks-per-node=4
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=400G
-#SBATCH --output=%x-%j.out
-#SBATCH --error=%x-%j.out
-#SBATCH --account=ibex-cs
+#SBATCH -p amp
+#SBATCH --constraint=gpu,a100
 
 
-module load singularity
+nvidia-smi 
+nvidia-smi topo -m 
+
+source ~/mohsin/activate_apptainer.sh
+
 export IMAGE=${BASEDIR}/images/soccernet_0.18_aarch64.sif
-export SINGULARITYENV_DATA_DIR=${BASEDIR}/soccerNet/datasets
+export SINGULARITYENV_DATA_DIR=/data
+export SINGULARITYENV_HOME=${BASEDIR}/tmpdir
+export BIND_MOUNT="-B ${BASEDIR},${BASEDIR}/datasets/soccernet_dataset:/data"
 
-
-singularity run --nv -B ${BASEDIR} ${IMAGE} mpirun -np 4 ./workload.sh
+singularity run --nv ${BIND_MOUNT} ${IMAGE} mpirun -np 4 ./workload.sh
 
