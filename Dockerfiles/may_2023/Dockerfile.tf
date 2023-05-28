@@ -7,6 +7,7 @@ RUN  pip install -v --prefix=/software --verbose opencv-python
 #==3.4.11.45
 RUN  pip install -v --prefix=/software --verbose imutils 
 RUN  pip install -v --prefix=/software --verbose moviepy 
+RUN  pip install -v --prefix=/software --verbose torch==1.13.1
 RUN  mkdir /data
 ENV PYTHONPATH=/software/lib/python3.8/site-packages:${PYTHONPATH}
 ENV SOCCERNET_INSTALL_DIR=/software
