@@ -21,5 +21,5 @@ export BIND_MOUNT="-B ${BASEDIR},${BASEDIR}/datasets/soccernet_dataset:/data"
 singularity run --nv ${BIND_MOUNT} ${IMAGE} mpirun -np 4 ./workload.sh &> output.txt
 
 
-singularity run ${BIND_MOUNT} ${IMAGE} pythone tools/report.py --file output.txt
+singularity run ${BIND_MOUNT} ${IMAGE} python tools/report.py --file output.txt
 
