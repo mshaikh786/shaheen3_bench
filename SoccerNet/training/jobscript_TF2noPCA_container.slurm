@@ -8,13 +8,16 @@
 #SBATCH --account=ibex-cs
 
 date
-module load singularity
+# IF using local installed Apptainer, please update the PATH
+# export PATH=/apptainer_install_dir/aarch/bin:$PATH
+
 
 export IMAGE=${BASEDIR}/images/soccernet_0.18_aarch64.sif
-export SINGULARITYENV_DATA_DIR=${BASEDIR}/soccerNet/datasets
+export SINGULARITYENV_DATA_DIR=/data
+export BIND_MOUNT="-B ${BASEDIR},${BASEDIR}/datasets/soccernet_dataset:/data"
 
 
-mkdir -p models/CALF_v1_TF2_noPCA_$SLURM_JOBID
+mkdir -p models/CALF_v1_TF2_noPCA
 singularity run --nv -B ${BASEDIR},${BASEDIR}/datasets:/data ${IMAGE} python src/main.py \
 --SoccerNet_path=/data/SoccerNet/ \
 --features=ResNET_TF2.npy  \
