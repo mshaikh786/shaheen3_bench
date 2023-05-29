@@ -11,7 +11,6 @@ nvidia-smi
 nvidia-smi topo -m 
 
 
-source ~/mohsin/activate_apptainer.sh
 export IMAGE=${BASEDIR}/images/torch-horovod-114-0280-v2-aarch64.sif 
 export rundir=${PWD}
 export base_dir=${rundir}/..
