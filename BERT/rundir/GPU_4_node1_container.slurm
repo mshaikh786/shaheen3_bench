@@ -55,5 +55,7 @@ time -p singularity run --nv ${BIND_MOUNT} ${IMAGE} deepspeed --num_nodes=1 --nu
 --deepspeed_config ${config_files}/ksl_bert_large_lamb_b${mBATCH}_seq${SEQ_LEN}_GPU_${TOTAL_GPUS}.json \
 --data_path_prefix ${DATA_DIR} \
 --use_nvidia_dataset \
---max_steps 10
+--max_steps 10 &> output.txt
+
+singularity run ${BIND_MOUNT} ${IMAGE} python src/report.py --file output.txt
 
