@@ -57,5 +57,5 @@ time -p singularity run --nv ${BIND_MOUNT} ${IMAGE} deepspeed --num_nodes=1 --nu
 --use_nvidia_dataset \
 --max_steps 10 &> output.txt
 
-singularity run ${BIND_MOUNT} ${IMAGE} python src/report.py --file output.txt
+singularity run ${BIND_MOUNT} ${IMAGE} python ../src/report.py --file output.txt
 
