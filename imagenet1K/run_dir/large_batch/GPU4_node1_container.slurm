@@ -12,13 +12,13 @@
 
 
 
-export IMAGE=../../../images/torch-horovod-114-0280-v2-aarch64.sif
+export IMAGE=${BASEDIR}/images/torch-horovod-114-0280-v2-aarch64.sif
 
 export RUNDIR=${PWD}/result
 export PYTHONWARNINGS="ignore"
 mkdir -p $RUNDIR
 
-export DATA_DIR=/data
+export DATA_DIR=/workspace/datasets/data/jpeg
 mpi_tasks=4
 batch_size=256
 epochs=5
@@ -30,10 +30,10 @@ echo "Using Batch size : $batch_size"
 echo "Epochs : $epochs"
 echo "CPU workers: $workers"
 
-BIND_MOUNT='-B ${BASEDIR}/imagenet1K:/workspace,${BASEDIR}/datasets/data/jpeg:/data'
+BIND_MOUNT="-B ${BASEDIR}:/workspace"
 
 cd $RUNDIR
-main_exe="/workspace/scripts/train_resnet50.py"
+main_exe="/workspace/imagenet1K/scripts/train_resnet50.py"
 
 cmd="singularity run --nv ${BIND_MOUNT} ${IMAGE} horovodrun -np ${mpi_tasks} python3 ${main_exe} --epochs ${epochs} --batch-size ${batch_size} --num_workers=$workers --root-dir=${DATA_DIR} --train-dir ${DATA_DIR}/train --val-dir ${DATA_DIR}/val ${NODE_LOCAL_STORAGE}"
 
