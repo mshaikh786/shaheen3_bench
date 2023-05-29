@@ -1,0 +1,16 @@
+
+export BASEDIR=/absolute/path/to/shaheen3_bench
+
+To lauch with SLURM:
+
+sbatch z_jobs_gromacs
+
+To launch as bash script:
+1. Comment the module load and add Apptainer/singularity on path
+2. bash z_jobs_gromacs
+
+
+Performance metric:
+-------------------
+Check the std.err for the Wall time (s) at the end of the simulation.
+
