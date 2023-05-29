@@ -8,14 +8,12 @@
 #SBATCH --time=0:30:0
 #SBATCH --err=std.err
 #SBATCH --output=std.out
-#----------------------------------------------------------#
-module list singularity
 
-export IMAGE=../images/gromacs_2022.3_aarch64.sif
+export IMAGE=${BASEDIR}/images/gromacs-2022.3-aarch64.sif
 export OMP_NUM_THREADS=12
 export SINGULARITYENV_OMP_NUM_THREADS=$OMP_NUM_THREADS
 export SINGULARITYENV_PREPEND_PATH=/usr/loca/gromacs/avx2_256/bin
 #----------------------------------------------------------#
 echo "The job "${SLURM_JOB_ID}" is running on "${SLURM_JOB_NODELIST}
 #----------------------------------------------------------#
-singularity run --nv -B ${BASEDIR} ${IMAGE} gmx mdrun -ntomp ${OMP_NUM_THREADS} -s md_0_1.tpr -cpi md_0_1.cpt -deffnm md_0_1 -v -dlb yes
+singularity run --nv -B ${BASEDIR} ${IMAGE} gmx mdrun -ntomp ${OMP_NUM_THREADS}  -ntmpi 1 -s md_0_1.tpr -cpi md_0_1.cpt -deffnm md_0_1 -v -dlb yes
