@@ -10,7 +10,7 @@
 nvidia-smi 
 nvidia-smi topo -m 
 
-export BASEDIR=/global/scratch/users/hateml/mohsin/shaheen3_bench
+
 source ~/mohsin/activate_apptainer.sh
 export IMAGE=${BASEDIR}/images/torch-horovod-114-0280-v2-aarch64.sif 
 export rundir=${PWD}
