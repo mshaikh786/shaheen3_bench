@@ -12,7 +12,7 @@
 
 
 nvidia-smi
-nvidia-smi top -m 
+nvidia-smi topo -m 
 
 export IMAGE=${BASEDIR}/images/torch-horovod-114-0280-v2-aarch64.sif
 
