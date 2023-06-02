@@ -33,7 +33,7 @@ echo "Using Batch size : $batch_size"
 echo "Epochs : $epochs"
 echo "CPU workers: $workers"
 
-BIND_MOUNT="-B ${BASEDIR}:/workspace,/ibex/ai/reference/CV/tinyimagenet"
+BIND_MOUNT="-B ${BASEDIR}:/workspace"
 
 cd $RUNDIR
 main_exe="/workspace/imagenet1K/scripts/train_resnet50.py"
