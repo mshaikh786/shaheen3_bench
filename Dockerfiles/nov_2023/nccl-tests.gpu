@@ -1,0 +1,26 @@
+# Use the specified base image
+FROM nvcr.io/nvidia/nvhpc:23.9-devel-cuda12.2-ubuntu22.04 as spython-base
+
+# Install git
+RUN apt-get update && \
+    apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set up working directory
+WORKDIR /tmp
+
+# Clone nccl-tests
+RUN git clone https://github.com/NVIDIA/nccl-tests && \
+    cd nccl-tests && \
+    export NVHPC_ROOT="/opt/nvidia/hpc_sdk/Linux_aarch64/23.9" && \
+    make CUDA_HOME=$NVHPC_ROOT/cuda/12.2 NCCL_HOME=$NVHPC_ROOT/comm_libs/12.2/nccl VERBOSE=1 && \
+    cp build/all_reduce_perf /workspace/bin
+
+# Set up final working directory
+WORKDIR /workspace
+
+# Add nccl-tests binary to the path
+ENV PATH="/workspace/bin:${PATH}"
+
+# Define the default command to run when the container starts
+CMD ["/bin/bash"]
