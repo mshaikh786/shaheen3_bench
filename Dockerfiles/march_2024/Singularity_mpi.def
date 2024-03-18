@@ -1,0 +1,126 @@
+Bootstrap: docker
+From: nvcr.io/nvidia/cuda:12.2.2-devel-ubuntu22.04
+Stage: spython-base
+
+%post
+
+# GNU compiler
+apt-get update -y && \
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+g++ \
+gcc \
+gfortran && \
+rm -rf /var/lib/apt/lists/*
+
+# GDRCOPY version 2.4
+apt-get update -y && \
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+make \
+wget && \
+rm -rf /var/lib/apt/lists/*
+mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://github.com/NVIDIA/gdrcopy/archive/v2.4.tar.gz && \
+mkdir -p /var/tmp && tar -x -f /var/tmp/v2.4.tar.gz -C /var/tmp -z && \
+cd /var/tmp/gdrcopy-2.4 && \
+mkdir -p /usr/local/gdrcopy/include /usr/local/gdrcopy/lib64 && \
+make PREFIX=/usr/local/gdrcopy lib lib_install && \
+echo "/usr/local/gdrcopy/lib64" >> /etc/ld.so.conf.d/hpccm.conf && ldconfig && \
+rm -rf /var/tmp/gdrcopy-2.4 /var/tmp/v2.4.tar.gz
+CPATH=/usr/local/gdrcopy/include:$CPATH
+LIBRARY_PATH=/usr/local/gdrcopy/lib64:$LIBRARY_PATH
+
+# Mellanox OFED version 4.5-1.0.1.0
+apt-get update -y && \
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+ca-certificates \
+gnupg \
+wget && \
+rm -rf /var/lib/apt/lists/*
+wget -qO - https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox | apt-key add - && \
+mkdir -p /etc/apt/sources.list.d && wget -q -nc --no-check-certificate -P /etc/apt/sources.list.d https://linux.mellanox.com/public/repo/mlnx_ofed/4.5-1.0.1.0/ubuntu22.04/mellanox_mlnx_ofed.list && \
+apt-get update -y && \
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+ibverbs-utils \
+libibmad \
+libibmad-devel \
+libibumad \
+libibumad-devel \
+libibverbs-dev \
+libibverbs1 \
+libmlx4-1 \
+libmlx4-dev \
+libmlx5-1 \
+libmlx5-dev \
+librdmacm-dev \
+librdmacm1 && \
+rm -rf /var/lib/apt/lists/*
+
+# UCX version 1.15.0
+apt-get update -y && \
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+binutils-dev \
+file \
+libnuma-dev \
+make \
+wget && \
+rm -rf /var/lib/apt/lists/*
+mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://github.com/openucx/ucx/releases/download/v1.15.0/ucx-1.15.0.tar.gz && \
+mkdir -p /var/tmp && tar -x -f /var/tmp/ucx-1.15.0.tar.gz -C /var/tmp -z && \
+cd /var/tmp/ucx-1.15.0 &&   ./configure --prefix=/usr/local/ucx --enable-mt --enable-optimizations --with-cuda=/usr/local/cuda --with-gdrcopy=/usr/local/gdrcopy --with-verbs && \
+make -j$(nproc) && \
+make -j$(nproc) install && \
+rm -rf /var/tmp/ucx-1.15.0 /var/tmp/ucx-1.15.0.tar.gz
+CPATH=/usr/local/ucx/include:$CPATH
+LD_LIBRARY_PATH=/usr/local/ucx/lib:$LD_LIBRARY_PATH
+LIBRARY_PATH=/usr/local/ucx/lib:$LIBRARY_PATH
+PATH=/usr/local/ucx/bin:$PATH
+
+
+# OpenMPI version 4.0.3
+apt-get update -y && \
+DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+bzip2 \
+file \
+hwloc \
+libnuma-dev \
+make \
+openssh-client \
+perl \
+tar \
+wget && \
+rm -rf /var/lib/apt/lists/*
+mkdir -p /var/tmp && wget -q -nc --no-check-certificate -P /var/tmp https://www.open-mpi.org/software/ompi/v4.0/downloads/openmpi-4.0.3.tar.bz2 && \
+mkdir -p /var/tmp && tar -x -f /var/tmp/openmpi-4.0.3.tar.bz2 -C /var/tmp -j && \
+cd /var/tmp/openmpi-4.0.3 &&   ./configure --prefix=/usr/local/openmpi --disable-getpwuid --disable-oshmem --enable-fortran --enable-mca-no-build=btl-uct --enable-orterun-prefix-by-default --with-cuda=/usr/local/cuda --with-ucx=/usr/local/ucx --without-verbs && \
+make -j$(nproc) && \
+make -j$(nproc) install && \
+echo "/usr/local/openmpi/lib" >> /etc/ld.so.conf.d/hpccm.conf && ldconfig && \
+rm -rf /var/tmp/openmpi-4.0.3 /var/tmp/openmpi-4.0.3.tar.bz2
+PATH=/usr/local/openmpi/bin:$PATH
+
+apt-get update \
+&& apt-get install -y curl git build-essential cmake autoconf
+
+mkdir -p /tmp
+cd /tmp
+mkdir -p /workspace/bin
+rm -rf osu-micro-benchmarks
+git clone https://github.com/forresti/osu-micro-benchmarks.git
+cd osu-micro-benchmarks
+autoreconf -f -i
+./configure CC=/usr/local/openmpi/bin/mpicc CXX=/usr/local/openmpi/bin/mpicxx --enable-cuda --with-cuda-include=/usr/local/cuda/include --with-cuda-libpath=/usr/local/cuda/lib64
+make
+make install
+
+
+%environment
+export CPATH=/usr/local/gdrcopy/include:$CPATH
+export LIBRARY_PATH=/usr/local/gdrcopy/lib64:$LIBRARY_PATH
+export CPATH=/usr/local/ucx/include:$CPATH
+export LD_LIBRARY_PATH=/usr/local/ucx/lib:$LD_LIBRARY_PATH
+export LIBRARY_PATH=/usr/local/ucx/lib:$LIBRARY_PATH
+export PATH=/usr/local/ucx/bin:$PATH
+export PATH=/usr/local/openmpi/bin:$PATH
+%runscript
+exec /bin/bash "$@"
+%startscript
+exec /bin/bash "$@"
