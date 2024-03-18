@@ -1,0 +1,35 @@
+Bootstrap: docker
+From: nvcr.io/nvidia/nvhpc:23.9-devel-cuda12.2-ubuntu22.04
+Stage: spython-base
+
+%post
+
+
+apt-get update \
+&&  apt-get install -y git
+
+
+mkdir -p /tmp
+cd /tmp
+mkdir -p /workspace/bin
+rm -rf nccl-tests
+git clone https://github.com/NVIDIA/nccl-tests
+
+export NVHPC_ROOT="/opt/nvidia/hpc_sdk/Linux_aarch64/23.9"
+
+cd nccl-tests
+make MPI=1 MPI_HOME=$NVHPC_ROOT/comm_libs/12.2/openmpi4/latest CUDA_HOME=$NVHPC_ROOT/cuda/12.2 NCCL_HOME=$NVHPC_ROOT/comm_libs/12.2/nccl VERBOSE=1
+cp build/all_reduce_perf /workspace/bin
+
+
+mkdir -p /workspace
+cd /workspace
+PATH=/workspace/bin:${PATH}
+%environment
+export PATH=/workspace/bin:${PATH}
+%runscript
+cd /workspace
+exec /bin/bash "$@"
+%startscript
+cd /workspace
+exec /bin/bash "$@"

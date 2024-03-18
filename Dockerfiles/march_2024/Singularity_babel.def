@@ -1,0 +1,35 @@
+Bootstrap: docker
+From: nvcr.io/nvidia/cuda:12.2.2-devel-ubuntu22.04
+Stage: spython-base
+
+%post
+
+
+apt-get update \
+&& apt-get install -y curl git build-essential cmake
+
+echo "NVCC Version #####################"
+nvcc --version
+
+mkdir -p /tmp
+cd /tmp
+mkdir -p /workspace/bin
+rm -rf BabelStream
+git clone https://github.com/UoB-HPC/BabelStream
+cd BabelStream
+cmake -Bbuild -H. -DMODEL=cuda -DCMAKE_CUDA_COMPILER=$(which nvcc) -DCUDA_ARCH=native
+cmake --build build
+cp build/cuda-stream /workspace/bin
+
+
+mkdir -p /workspace
+cd /workspace
+PATH=/workspace/bin:${PATH}
+%environment
+export PATH=/workspace/bin:${PATH}
+%runscript
+cd /workspace
+exec /bin/bash "$@"
+%startscript
+cd /workspace
+exec /bin/bash "$@"
