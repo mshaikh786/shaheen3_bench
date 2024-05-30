@@ -1,0 +1,12 @@
+# docker/compilers/aocc/Dockerfile
+FROM docker/base:latest
+
+RUN wget -qO- http://developer.amd.com/wordpress/media/files/aocc-compiler-2.3.0_Ubuntu1804.tar | tar xvf - && \
+    cd aocc-compiler-2.3.0_Ubuntu1804 && \
+    ./install.sh && \
+    cd .. && \
+    rm -rf aocc-compiler-2.3.0_Ubuntu1804
+
+ENV CC=/opt/AMD/aocc-compiler-2.3.0/bin/clang
+ENV CXX=/opt/AMD/aocc-compiler-2.3.0/bin/clang++
+
