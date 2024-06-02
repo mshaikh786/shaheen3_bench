@@ -50,22 +50,18 @@ The build process consists of the following steps:
 - Math Library Dockerfiles (docker/mathlibs/*): Contains configurations for different math libraries.
 
 ### Usage
-
 1. **Set Environment Variables:**
 
    Define the compiler and math library you want to use. Valid values are:
 
     - **Compilers**: `gcc`, `cray`, `aocc`
     - **Math Libraries**: `mkl`, `libsci`, `blis`, `openblas`
-
-   Example:
-   ```sh
-   export COMPILER=gcc
-   export MATHLIB=mkl
+   
+   
 2. **Run the Build Script:**
 
     Use the provided Makefile to run the build script.
-
-    ```sh
-    make build
+   #### Example
+    ```
+    COMPILER=gcc MATHLIB=mkl make build
     ```
