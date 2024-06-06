@@ -1,4 +1,4 @@
-# docker/compilers/aocc/Dockerfile
+# docker/compilers/aocc/Dockerfile.mkl.onednn.gcc.base
 FROM docker/base:latest
 
 RUN wget -qO- http://developer.amd.com/wordpress/media/files/aocc-compiler-2.3.0_Ubuntu1804.tar | tar xvf - && \

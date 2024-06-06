@@ -1,0 +1,29 @@
+# docker/compilers/gcc/Dockerfile.base
+# docker/base/Dockerfile.base
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    cmake \
+    python3-dev \
+    python3-venv \
+    python3-pip \
+    wget \
+    curl \
+    ca-certificates \
+    libopenmpi-dev \
+    libomp-dev
+
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install numpy pyyaml setuptools cmake cffi typing_extensions future six requests dataclasses
+
+
+ENV CC=gcc
+ENV CXX=g++
+
+# Install additional packages if needed
+

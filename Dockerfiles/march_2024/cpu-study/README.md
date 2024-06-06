@@ -24,7 +24,14 @@ This project provides a framework for building Docker images for PyTorch using v
 │ │ │ └── Dockerfile.blis
 │ │ └── openblas
 │ │ └── Dockerfile.openblas
-├── build.sh
+│ ├── dnn
+│ │ ├── onednn
+│ │ │ └── Dockerfile.onednn
+│ │ ├── zendnn
+│ │ │ └── Dockerfile.zendnn
+│ │ └── fbgemm
+│ │ └── Dockerfile.fbgemm
+├── Dockerfile
 └── Makefile
 ```
 
@@ -48,6 +55,7 @@ The build process consists of the following steps:
 - Base Dockerfile (docker/base/Dockerfile.base): Contains the base configuration and common dependencies.
 - Compiler Dockerfiles (docker/compilers/*): Contains configurations for different compilers.
 - Math Library Dockerfiles (docker/mathlibs/*): Contains configurations for different math libraries.
+- DNN Dockerfiles (docker/dnn/*): Contains configurations for different dnn libraries
 
 ### Usage
 1. **Set Environment Variables:**
@@ -56,12 +64,13 @@ The build process consists of the following steps:
 
     - **Compilers**: `gcc`, `cray`, `aocc`
     - **Math Libraries**: `mkl`, `libsci`, `blis`, `openblas`
-   
-   
+    - **DNN Libraries**: `onednn`, `zendnn`, `fbgemm`
+
+
 2. **Run the Build Script:**
 
     Use the provided Makefile to run the build script.
    #### Example
     ```
-    COMPILER=gcc MATHLIB=mkl make build
+    COMPILER=gcc MATHLIB=mkl DNNLIB=onednn make build_main
     ```

@@ -1,0 +1,25 @@
+# docker/dnn/zendnn/Dockerfile.cray.aocc.mkl.onednn.gcc.base.zendnn
+
+# Install dependencies for ZenDNN
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    cmake
+
+# Download and install ZenDNN
+RUN git clone https://github.com/amd/ZenDNN.git && \
+    cd ZenDNN && \
+    mkdir build && cd build && \
+    cmake .. && \
+    make -j$(nproc) && \
+    make install && \
+    cd ../.. && \
+    rm -rf ZenDNN
+
+# Set environment variables for ZenDNN
+ENV ZENDNN_ROOT=/usr/local
+ENV LD_LIBRARY_PATH=$ZENDNN_ROOT/lib:$LD_LIBRARY_PATH
+ENV LIBRARY_PATH=$ZENDNN_ROOT/lib:$LIBRARY_PATH
+ENV C_INCLUDE_PATH=$ZENDNN_ROOT/include:$C_INCLUDE_PATH
+ENV CPLUS_INCLUDE_PATH=$ZENDNN_ROOT/include:$CPLUS_INCLUDE_PATH

@@ -1,4 +1,4 @@
-# docker/mathlibs/openblas/Dockerfile
+# docker/mathlibs/openblas/Dockerfile.zendnn.cray.aocc.mkl.onednn.gcc.base
 FROM scratch
 
 RUN apt-get update && \

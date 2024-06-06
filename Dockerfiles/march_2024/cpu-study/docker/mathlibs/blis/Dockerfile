@@ -1,4 +1,4 @@
-# docker/mathlibs/blis/Dockerfile
+# docker/mathlibs/blis/Dockerfile.zendnn.cray.aocc.mkl.onednn.gcc.base
 FROM scratch
 
 # Install BLIS

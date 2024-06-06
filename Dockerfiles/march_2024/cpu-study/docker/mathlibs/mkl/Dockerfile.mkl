@@ -1,0 +1,17 @@
+# docker/mathlibs/mkl/Dockerfile.mkl
+FROM ubuntu:20.04
+
+# Install necessary utilities
+RUN apt-get update && apt-get install -y wget tar
+
+# Install Intel MKL
+RUN wget https://registrationcenter-download.intel.com/akdlm/IRC_NAS/2f3a5785-1c41-4f65-a2f9-ddf9e0db3ea0/l_onemkl_p_2024.1.0.695.sh && \
+    chmod 777 l_onemkl_p_2024.1.0.695.sh && \
+    ./l_onemkl_p_2024.1.0.695.sh -a --silent --eula accept
+
+RUN ls -alh
+RUN ls /opt/intel/oneapi/
+
+
+ENV MKLROOT=/opt/intel/oneapi/mkl/latest
+ENV LD_LIBRARY_PATH=$MKLROOT/lib/intel64:$LD_LIBRARY_PATH

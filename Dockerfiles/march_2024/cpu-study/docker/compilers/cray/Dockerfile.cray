@@ -1,4 +1,4 @@
-# docker/compilers/cray/Dockerfile
+# docker/compilers/cray/Dockerfile.aocc.mkl.onednn.gcc.base
 FROM docker/base:latest
 
 # Add commands to setup Cray environment
