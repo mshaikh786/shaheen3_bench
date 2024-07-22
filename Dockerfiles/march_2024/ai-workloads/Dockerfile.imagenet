@@ -12,9 +12,9 @@ RUN pip install .
 
 WORKDIR /tmp
 ARG TARGETPLATFORM
-COPY triton-1.1.1-cp38-cp38-linux_aarch64.whl .
+COPY triton-3.0.0-cp310-cp310-linux_aarch64.whl .
 SHELL ["/bin/bash", "-c"]
-RUN if [ "$TARGETPLATFORM" == "linux/arm64" ]; then pip install --verbose --prefix=/software /tmp/triton-1.1.1-cp38-cp38-linux_aarch64.whl; else pip install --verbose --prefix=/software triton ; fi
+RUN if [ "$TARGETPLATFORM" == "linux/arm64" ]; then pip install --verbose --prefix=/software /tmp/triton-3.0.0-cp310-cp310-linux_aarch64.whl; else pip install --verbose --prefix=/software triton ; fi
 RUN pip install --prefix=/software tensorboardX boto3 h5py
 RUN env MPICC=mpicc pip install --prefix=/software mpi4py
 RUN pip install --prefix=/software jupyterlab-nvdashboard==0.11.0
