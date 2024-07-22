@@ -258,7 +258,8 @@ def train(epoch):
         
         collect['data'].append(io_time)
         collect['batch'].append(train_time)
-        collect['host_to_dev'].append(htod_time)
+        if args.cuda:
+            collect['host_to_dev'].append(htod_time)
         collect['optim'].append(opt_time)
         
         end=perf_counter()
