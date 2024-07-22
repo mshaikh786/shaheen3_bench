@@ -1,0 +1,26 @@
+# docker/dnn/fbgemm/Dockerfile.fbgemm
+
+# Install dependencies for FBGEMM
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    cmake \
+    libeigen3-dev
+
+# Download and install FBGEMM
+RUN git clone https://github.com/pytorch/FBGEMM.git && \
+    cd FBGEMM && \
+    mkdir build && cd build && \
+    cmake .. && \
+    make -j$(nproc) && \
+    make install && \
+    cd ../.. && \
+    rm -rf FBGEMM
+
+# Set environment variables for FBGEMM
+ENV FBGEMM_ROOT=/usr/local
+ENV LD_LIBRARY_PATH=$FBGEMM_ROOT/lib:$LD_LIBRARY_PATH
+ENV LIBRARY_PATH=$FBGEMM_ROOT/lib:$LIBRARY_PATH
+ENV C_INCLUDE_PATH=$FBGEMM_ROOT/include:$C_INCLUDE_PATH
+ENV CPLUS_INCLUDE_PATH=$FBGEMM_ROOT/include:$CPLUS_INCLUDE_PATH

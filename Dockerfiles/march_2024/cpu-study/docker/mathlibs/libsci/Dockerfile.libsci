@@ -1,0 +1,7 @@
+# docker/mathlibs/libsci/Dockerfile.libsci
+FROM scratch
+
+# Assuming LibSci is available
+ENV LIBSCIROOT=/opt/cray/pe/libsci
+ENV LD_LIBRARY_PATH=$LIBSCIROOT/lib:$LD_LIBRARY_PATH
+
