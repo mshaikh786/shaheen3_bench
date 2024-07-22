@@ -1,4 +1,4 @@
-# docker/dnn/zendnn/Dockerfile.cray.aocc.mkl.onednn.gcc.base.zendnn
+# docker/dnn/zendnn/Dockerfile.zendnn
 
 # Install dependencies for ZenDNN
 RUN apt-get update && \

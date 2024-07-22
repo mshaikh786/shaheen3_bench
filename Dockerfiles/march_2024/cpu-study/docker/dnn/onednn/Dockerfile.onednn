@@ -23,15 +23,11 @@ RUN python3 -m pip install --upgrade pip && \
     python3 -m pip install numpy pyyaml setuptools cmake cffi typing_extensions future six requests dataclasses
 
 # Download and install Intel oneDNN
-RUN wget https://github.com/oneapi-src/oneDNN/archive/refs/tags/v2.7.2.tar.gz -O oneDNN.tar.gz && \
-    tar -xzf oneDNN.tar.gz && \
-    cd oneDNN-2.7.2 && \
-    mkdir -p build && cd build && \
-    cmake .. && \
-    make -j$(nproc) && \
-    make install && \
-    cd ../.. && \
-    rm -rf oneDNN.tar.gz oneDNN-2.7.2
+RUN git clone --depth 1 https://github.com/oneapi-src/oneDNN.git && \
+    cd oneDNN/ && mkdir build && cd build && \
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DDNNL_CPU_RUNTIME=OMP -DDNNL_BUILD_EXAMPLES=ON && \
+    make -j $(nproc) && make install
+
 
 # Set environment variables for oneDNN
 ENV DNNL_ROOT=/usr/local
@@ -39,6 +35,7 @@ ENV LD_LIBRARY_PATH=$DNNL_ROOT/lib:$LD_LIBRARY_PATH
 ENV LIBRARY_PATH=$DNNL_ROOT/lib:$LIBRARY_PATH
 ENV C_INCLUDE_PATH=$DNNL_ROOT/include:$C_INCLUDE_PATH
 ENV CPLUS_INCLUDE_PATH=$DNNL_ROOT/include:$CPLUS_INCLUDE_PATH
+ENV USE_MKLDNN=1
 
 # Verify installation
 RUN ldconfig && \

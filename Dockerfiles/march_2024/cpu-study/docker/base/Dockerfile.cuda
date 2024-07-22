@@ -1,0 +1,10 @@
+# Stage 1: CUDA Base Layer
+FROM nvcr.io/nvidia/cuda:11.8.0-devel-ubuntu22.04 AS cuda-base
+
+# Set environment variables for CUDA
+ENV PATH="/usr/local/cuda/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+ENV CUDA_HOME="/usr/local/cuda"
+ENV USE_CUDA=ON
+ENV USE_CUDNN=ON
+

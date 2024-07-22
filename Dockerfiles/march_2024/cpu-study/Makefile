@@ -1,10 +1,20 @@
 # Default target
 .DEFAULT_GOAL := build
 
+# Default CUDA usage
+USE_CUDA ?= off
+
 # Define valid compilers, math libraries, and DNN libraries
 VALID_COMPILERS := gcc cray aocc
 VALID_MATH_LIBS := mkl libsci blis openblas
 VALID_DNN_LIBS := onednn zendnn fbgemm
+
+# Compute the tag suffix based on USE_CUDA
+ifeq ($(USE_CUDA),on)
+    TAG_SUFFIX := cuda
+else
+    TAG_SUFFIX := cpu
+endif
 
 # Check the COMPILER, MATHLIB, and DNNLIB environment variables and validate
 check_vars:
@@ -45,8 +55,18 @@ build_mathlib: check_vars
 build_dnnlib: check_vars
 	docker build -f docker/dnn/${DNNLIB}/Dockerfile.${DNNLIB} -t docker/dnn/${DNNLIB}:latest .
 
+# Build CUDA Docker image if USE_CUDA is on
+build_base:
+	@if [ "$(USE_CUDA)" = "on" ]; then \
+		echo "Building with CUDA support..."; \
+		docker build -f docker/base/Dockerfile.cuda -t docker/base:latest .; \
+	else \
+		echo "Building without CUDA support..."; \
+		docker build -f docker/base/Dockerfile.base -t docker/base:latest .; \
+	fi
+
 # Build the main Docker image based on the selected compiler, math library, and DNN library
 build_main: build_compiler build_mathlib build_dnnlib
-	docker build --build-arg COMPILER=${COMPILER} --build-arg MATHLIB=${MATHLIB} --build-arg DNNLIB=${DNNLIB} -f Dockerfile -t pytorch-${COMPILER}-${MATHLIB}-${DNNLIB}:latest .
+	docker build --build-arg COMPILER=${COMPILER} --build-arg MATHLIB=${MATHLIB} --build-arg DNNLIB=${DNNLIB} -f Dockerfile -t pytorch-${COMPILER}-${MATHLIB}-${DNNLIB}:${TAG_SUFFIX} .
 
-.PHONY: check_vars build_compiler build_mathlib build_dnnlib build_main
+.PHONY: check_vars build_compiler build_mathlib build_dnnlib build_main build_base

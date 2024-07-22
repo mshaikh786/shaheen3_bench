@@ -1,9 +1,12 @@
-# docker/mathlibs/openblas/Dockerfile.zendnn.cray.aocc.mkl.onednn.gcc.base
-FROM scratch
+# docker/mathlibs/openblas/Dockerfile.openblas
+FROM ubuntu:20.04
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends libopenblas-dev
 
 ENV OPENBLASROOT=/usr
 ENV LD_LIBRARY_PATH=$OPENBLASROOT/lib:$LD_LIBRARY_PATH
+ENV BLAS="OpenBLAS"
+ENV CMAKE_PREFIX_PATH=$OPENBLASROOT:$CMAKE_PREFIX_PATH
+
 

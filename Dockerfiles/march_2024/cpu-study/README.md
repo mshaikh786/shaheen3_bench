@@ -14,7 +14,7 @@ This project provides a framework for building Docker images for PyTorch using v
 │ │ ├── cray
 │ │ │ └── Dockerfile.cray
 │ │ └── aocc
-│ │ └── Dockerfile.aocc
+│ │   └── Dockerfile.aocc
 │ ├── mathlibs
 │ │ ├── mkl
 │ │ │ └── Dockerfile.mkl
@@ -23,14 +23,14 @@ This project provides a framework for building Docker images for PyTorch using v
 │ │ ├── blis
 │ │ │ └── Dockerfile.blis
 │ │ └── openblas
-│ │ └── Dockerfile.openblas
+│ │   └── Dockerfile.openblas
 │ ├── dnn
 │ │ ├── onednn
 │ │ │ └── Dockerfile.onednn
 │ │ ├── zendnn
 │ │ │ └── Dockerfile.zendnn
 │ │ └── fbgemm
-│ │ └── Dockerfile.fbgemm
+│ │   └── Dockerfile.fbgemm
 ├── Dockerfile
 └── Makefile
 ```

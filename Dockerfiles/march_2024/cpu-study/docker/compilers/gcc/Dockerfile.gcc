@@ -1,5 +1,4 @@
-# docker/compilers/gcc/Dockerfile.base
-# docker/base/Dockerfile.base
+# docker/compilers/gcc/Dockerfile.gcc
 FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
