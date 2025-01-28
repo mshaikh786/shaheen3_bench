@@ -1,5 +1,3 @@
-# Project README
-
 ## Overview
 This project provides an automation framework to execute and manage a variety of GPU-accelerated benchmark tests. The framework uses containerized environments (Docker, Singularity, or Apptainer) to ensure portability and consistency across systems.
 
@@ -8,13 +6,13 @@ This project provides an automation framework to execute and manage a variety of
 project-root/
 ├── runner.sh          # Main script to orchestrate benchmark execution.
 ├── download_image.sh  # Script to pull container images for benchmarks.
-├── benchmarks/        # Directory containing benchmark-specific scripts.
-│   ├── system_insights.sh
-│   ├── hpl.sh
-│   ├── cuda_samples.sh
-│   ├── nccl.sh
-│   ├── babelstream.sh
-│   └── osu.sh
+└── benchmarks/        # Directory containing benchmark-specific scripts.
+    ├── system_insights.sh
+    ├── hpl.sh
+    ├── cuda_samples.sh
+    ├── nccl.sh
+    ├── babelstream.sh
+    └── osu.sh
 ```
 
 ## Benchmarks
