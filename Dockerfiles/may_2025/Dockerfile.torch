@@ -18,12 +18,12 @@ ENV CC=mpicc CXX=mpicxx HOROVOD_MPICXX_SHOW="mpicxx --show" HOROVOD_WITH_MPI=1 H
 RUN sed -i 's/set(CMAKE_CXX_STANDARD 14)/set(CMAKE_CXX_STANDARD 17)/g' ./CMakeLists.txt && \
     sed -i 's/set(CMAKE_CXX_STANDARD 14)/set(CMAKE_CXX_STANDARD 17)/g' ./horovod/torch/CMakeLists.txt
 RUN python setup.py clean && \
-    CXXFLAGS="-include 'stdexcept'" python setup.py install --prefix=/software && \
-    cp -r build/lib.linux-aarch64-cpython-312/horovod /software/local/lib/python3.12/dist-packages/
+    CXXFLAGS="-include 'stdexcept'" python setup.py install --prefix=/software
+ARG TARGETPLATFORM
+RUN if [ "$TARGETPLATFORM" == "linux/arm64" ]; then cp -r build/lib.linux-aarch64-cpython-312/horovod /software/local/lib/python3.12/dist-packages/; else cp -r build/lib.linux-x86_64-cpython-312/horovod /software/local/lib/python3.12/dist-packages/triton ; fi
 RUN pip install --prefix=/software pyyaml cffi==1.17 && \
     pip install --prefix=/software cloudpickle
 WORKDIR /tmp
-ARG TARGETPLATFORM
 #COPY triton-1.1.1-cp38-cp38-linux_aarch64.whl .
 SHELL ["/bin/bash", "-c"]
 #RUN if [ "$TARGETPLATFORM" == "linux/arm64" ]; then pip install --verbose --prefix=/software /tmp/triton-1.1.1-cp38-cp38-linux_aarch64.whl; else pip install --verbose --prefix=/software triton ; fi
