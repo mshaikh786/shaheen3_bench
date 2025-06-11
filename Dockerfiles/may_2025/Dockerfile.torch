@@ -2,8 +2,11 @@ FROM nvcr.io/nvidia/cuda-dl-base:25.03-cuda12.8-devel-ubuntu24.04 AS builder
 RUN apt update && \
    apt install -y python3 && \
    apt install -y  python-is-python3 && \
-   apt update && \
-   apt install -y python3-pip
+   apt install -y python3-pip && \
+   apt install -y cmake
+RUN pip install --prefix=/software numpy && \ 
+    pip install --prefix=/software --index-url https://download.pytorch.org/whl/cu128 torch==2.7.0
+ENV PYTHONPATH=/software/local/lib/python3.12/dist-packages:${PYTHONPATH}
 WORKDIR /tmp
 ARG DEEPSPEED_VERSION=0.17.0
 RUN git clone --recursive https://github.com/horovod/horovod horovod \
@@ -12,7 +15,7 @@ RUN git clone --recursive https://github.com/horovod/horovod horovod \
 &&  git submodule sync && git submodule update --init --recursive 
 WORKDIR /tmp/horovod
 ENV CC=mpicc CXX=mpicxx HOROVOD_WITH_MPI=1 HOROVOD_WITH_PYTORCH=1 HOROVOD_WITHOUT_TENSORFLOW=1 HOROVOD_WITHOUT_MXNET=1 HOROVOD_WITHOUT_GLOO=1 HOROVOD_BUILD_CUDA_CC_LIST=70,80,90 
-RUN pip install .
+RUN pip install --use-pep517 --prefix=/software .
 
 WORKDIR /tmp
 ARG TARGETPLATFORM
