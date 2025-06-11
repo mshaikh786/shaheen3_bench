@@ -1,8 +1,8 @@
 FROM nvcr.io/nvidia/cuda-dl-base:25.03-cuda12.8-devel-ubuntu24.04 AS builder
 RUN apt update && \
-   apt install python3
+   apt install -y python3
 WORKDIR /tmp
-ARG DEEPSPEED_VERSION 
+ARG DEEPSPEED_VERSION=0.17.0
 RUN git clone --recursive https://github.com/horovod/horovod horovod \
 &&  cd horovod \
 &&  git checkout v0.28.0 \
@@ -13,9 +13,9 @@ RUN pip install .
 
 WORKDIR /tmp
 ARG TARGETPLATFORM
-COPY triton-1.1.1-cp38-cp38-linux_aarch64.whl .
+#COPY triton-1.1.1-cp38-cp38-linux_aarch64.whl .
 SHELL ["/bin/bash", "-c"]
-RUN if [ "$TARGETPLATFORM" == "linux/arm64" ]; then pip install --verbose --prefix=/software /tmp/triton-1.1.1-cp38-cp38-linux_aarch64.whl; else pip install --verbose --prefix=/software triton ; fi
+#RUN if [ "$TARGETPLATFORM" == "linux/arm64" ]; then pip install --verbose --prefix=/software /tmp/triton-1.1.1-cp38-cp38-linux_aarch64.whl; else pip install --verbose --prefix=/software triton ; fi
 RUN pip install --prefix=/software tensorboardX boto3 h5py
 RUN env MPICC=mpicc pip install --prefix=/software mpi4py
 
