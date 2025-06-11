@@ -3,7 +3,7 @@ docker buildx ls
 docker login -u mshaikh
 
 # For multiplatform build and pushing to the dockerhub 
-docker buildx build --platform   linux/amd64,linux/arm64 -t ds-torch -f Dockerfile.torch --push .
+docker buildx build --platform   linux/amd64,linux/arm64 -t mshaikh/ds-torch:270.cu128 -f Dockerfile.torch --push .
 # For arm64 build and adding local image for testing and debugging
 docker buildx build --platform   linux/arm64 -t ds-torch -f Dockerfile.torch --load .
 
