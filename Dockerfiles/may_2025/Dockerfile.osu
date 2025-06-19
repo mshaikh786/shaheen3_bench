@@ -1,4 +1,4 @@
-FROM nvcr.io/nvidia/cuda-dl-base:25.03-cuda12.8-devel-ubuntu24.04 AS builder
+FROM  nvcr.io/nvidia/cuda-dl-base:25.03-cuda12.8-devel-ubuntu24.04 AS builder
 ENV CPATH=/usr/local/gdrcopy/include:$CPATH
 ENV LIBRARY_PATH=/usr/local/gdrcopy/lib64:$LIBRARY_PATH
 ENV CPATH=/usr/local/ucx/include:$CPATH
@@ -88,6 +88,8 @@ make -j$(nproc) install && \
 echo "/usr/local/openmpi/lib" >> /etc/ld.so.conf.d/hpccm.conf && ldconfig && \
 rm -rf /var/tmp/openmpi-4.0.3 /var/tmp/openmpi-4.0.3.tar.bz2
 RUN PATH=/usr/local/openmpi/bin:$PATH
+RUN echo "HEEEEEEEEEEERRRRRREEEEEEE MPI"
+RUN which mpirun
 RUN apt-get update \
 && apt-get install -y curl git build-essential cmake autoconf
 RUN mkdir -p /tmp
