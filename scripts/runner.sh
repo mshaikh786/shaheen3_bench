@@ -67,6 +67,7 @@ if [[ "$benchmark" == "hpl" && -z "$hpl_dat" ]]; then
 fi
 
 # Execute the appropriate benchmark
+
 case "$benchmark" in
   system_insights)
     echo "Launching System Insights benchmark..."
