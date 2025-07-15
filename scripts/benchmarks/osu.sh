@@ -43,8 +43,10 @@ if [[ -z "$runtime" ]]; then
 fi
 
 # Define image and paths
-osu_image="nvcr.io/nvidia/osu-micro-benchmarks:latest"
-workspace_path="/workspace"
+osu_image="library://badawimh/benchmarks/hpcbenchmarks:v1""
+
+
+workspace_path="/binaries/osu-micro-benchmarks/mpi/pt2pt/"
 osu_latency_exec="$workspace_path/osu_latency"
 osu_bw_exec="$workspace_path/osu_bw"
 osu_bibw_exec="$workspace_path/osu_bibw"
@@ -69,7 +71,7 @@ case "$runtime" in
     ;;
   singularity|apptainer)
     echo "Running OSU benchmarks using $runtime..."
-    $runtime exec --nv docker://$osu_image bash -c "\
+    $runtime exec --nv $osu_image bash -c "\
       mpirun -np 2 $osu_latency_exec && \
       mpirun -np 2 $osu_bw_exec && \
       mpirun -np 2 $osu_bibw_exec"

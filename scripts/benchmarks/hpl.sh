@@ -67,7 +67,8 @@ if [[ -z "$hpl_dat" ]]; then
 fi
 
 # Define image
-hpc_bench_image="nvcr.io/nvidia/hpc-benchmarks:24.09"
+hpc_bench_image="library://badawimh/benchmarks/hpcbenchmarks:v1"
+
 
 # Check if the image exists in the specified directory
 if [[ -n "$image_dir" ]]; then
@@ -93,7 +94,7 @@ case "$runtime" in
     ;;
   singularity|apptainer)
     echo "Running HPL benchmark using $runtime..."
-    $runtime exec --nv --bind "$(dirname $hpl_dat):/dat-files" docker://$hpc_bench_image bash -c "\
+    $runtime exec --nv --bind "$(dirname $hpl_dat):/dat-files" $hpc_bench_image bash -c "\
       mpirun -np 1 -cpus-per-proc 16 /workspace/hpl.sh --dat /dat-files/$(basename $hpl_dat) --cpu-affinity $cpu_affinity > $(basename $output)"
     ;;
   *)
