@@ -2,13 +2,22 @@
 
 # Display usage information
 show_usage() {
-  echo "Usage: $0 --benchmark <benchmark_name> [--runtime <runtime>] [--image-dir <path>] [--hpl-dat <path>]"
-  echo "Options:"
-  echo "  --benchmark <benchmark_name>   Name of the benchmark to run (e.g., system_insights, cuda_samples, hpl, osu, nccl, babelstream)"
+  echo "Usage: $0 --benchmark <benchmark_name> [--runtime <runtime>] [--image-dir <path>] [--hpl-dat <path>] [other options specific to benchmark]"
+  echo ""
+  echo "General Options:"
+  echo "  --benchmark <benchmark_name>   Name of the benchmark to run (e.g., system_insights, cuda_samples, hpl, osu, nccl, babelstream, imagenet)"
   echo "  --runtime <runtime>            Container runtime to use (e.g., docker, singularity, apptainer)"
   echo "  --image-dir <path>             Path to check for the container image (optional)"
   echo "  --hpl-dat <path>               Path to the HPL.dat file (required for hpl benchmark)"
   echo "  --help                         Show this help message and exit"
+  echo ""
+  echo "ImageNet Benchmark Options:"
+  echo "  --gpus <int>                   Number of GPUs to use (default: 1)"
+  echo "  --batch-size <int>             Batch size (default: 256)"
+  echo "  --epochs <int>                 Number of epochs (default: 5)"
+  echo "  --data-dir <path>              Path to ImageNet or TinyImageNet dataset (default: ./tinyimagenet)"
+  echo "  --output-dir <path>            Output log directory (default: ./imagenet_output)"
+  echo ""
 }
 
 # Parse command-line arguments
@@ -16,6 +25,9 @@ benchmark=""
 runtime=""
 image_dir=""
 hpl_dat=""
+
+# Forward all arguments for benchmarks that need more than standard args
+forward_args=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -40,9 +52,8 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     *)
-      echo "Unknown option: $1"
-      show_usage
-      exit 1
+      forward_args+=("$1")
+      shift
       ;;
   esac
 done
@@ -67,7 +78,6 @@ if [[ "$benchmark" == "hpl" && -z "$hpl_dat" ]]; then
 fi
 
 # Execute the appropriate benchmark
-
 case "$benchmark" in
   system_insights)
     echo "Launching System Insights benchmark..."
@@ -92,6 +102,10 @@ case "$benchmark" in
   babelstream)
     echo "Launching BabelStream benchmark..."
     ./benchmarks/babelstream.sh --runtime "$runtime" --image-dir "$image_dir"
+    ;;
+  imagenet)
+    echo "Launching ImageNet benchmark..."
+    ./benchmarks/imagenet.sh --runtime "$runtime" "${forward_args[@]}"
     ;;
   *)
     echo "Error: Unknown benchmark '$benchmark'."
