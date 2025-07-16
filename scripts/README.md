@@ -1,9 +1,10 @@
+
 ## Overview
 This project provides an automation framework to execute and manage a variety of GPU-accelerated benchmark tests. The framework uses containerized environments (Docker, Singularity, or Apptainer) to ensure portability and consistency across systems.
 
 ## Project Structure
 ```
-project-root/
+scripts/
 ├── runner.sh          # Main script to orchestrate benchmark execution.
 ├── download_image.sh  # Script to pull container images for benchmarks.
 └── benchmarks/        # Directory containing benchmark-specific scripts.
@@ -12,121 +13,144 @@ project-root/
     ├── cuda_samples.sh
     ├── nccl.sh
     ├── babelstream.sh
-    └── osu.sh
+    ├── osu.sh
+    └── imagenet.sh     # ImageNet ResNet50 training benchmark
 ```
 
 ## Benchmarks
 The project supports the following benchmarks:
 
-1. **System Insights** (`system_insights.sh`):
+1. **System Insights**:
    - Collects hardware and software system information such as CPU, memory, GPU, and network.
 
-2. **HPL (High-Performance Linpack)** (`hpl.sh`):
+2. **HPL (High-Performance Linpack)**:
    - Runs the HPL benchmark for floating-point performance testing on GPUs.
-   - Requires `HPL.dat` configuration.
+   - Requires `HPL.dat` configuration file.
 
-3. **CUDA Samples** (`cuda_samples.sh`):
+3. **CUDA Samples**:
    - Executes basic CUDA utility tests such as device query and bandwidth tests.
 
-4. **NCCL (NVIDIA Collective Communication Library)** (`nccl.sh`):
+4. **NCCL (NVIDIA Collective Communication Library)**:
    - Tests GPU communication performance using NCCL's `all_reduce_perf`.
 
-5. **BabelStream** (`babelstream.sh`):
+5. **BabelStream**:
    - Measures memory throughput on GPUs using CUDA streams.
 
-6. **OSU Micro-Benchmarks** (`osu.sh`):
+6. **OSU Micro-Benchmarks**:
    - Tests MPI performance metrics, including latency, bandwidth, and bidirectional bandwidth.
+
+7. **ImageNet ResNet50 Application Benchmark**:
+   - Trains a ResNet50 model using a TinyImageNet or ImageNet dataset.
+   - Uses `train_resnet50.py` inside a container image.
+   - Allows configuration of GPU count, batch size, epochs, and dataset directory.
+   - Uses the Docker image `mshaikh/ds-torch:270.cu128` and executes via Singularity.
 
 ## Prerequisites
 - **GPU and Drivers**: Ensure that an NVIDIA GPU is installed and that the appropriate drivers are loaded.
 - **Container Runtime**:
   - Docker, Singularity, or Apptainer must be installed.
 - **Environment Setup**:
-  - The `nvcc` and `nvidia-smi` commands should be available.
+  - Ensure `nvidia-smi` and GPU support via `--nv` in Singularity or Docker.
 
 ## Usage
 
-### 1. Run a Benchmark
-Use the `runner.sh` script to execute any supported benchmark. The script accepts the following options:
+### Run a Benchmark
+
+Use the `runner.sh` script to execute any supported benchmark.
 
 ```bash
-Usage: ./runner.sh --benchmark <benchmark_name> --runtime <runtime> [options]
-
-Options:
-  --benchmark <benchmark_name>   Name of the benchmark to run (e.g., system_insights, hpl, cuda_samples, nccl, babelstream, osu).
-  --runtime <runtime>            Container runtime to use (e.g., docker, singularity, apptainer).
-  --image-dir <path>             (Optional) Path to check for container images.
-  --hpl-dat <path>               (Required for HPL) Path to the HPL.dat configuration file.
-  --help                         Show usage information.
+./runner.sh --benchmark <benchmark_name> --runtime <runtime> [other options]
 ```
 
-### 2. Download Required Images
-The `download_image.sh` script documents the process of manually pulling container images for a specific benchmark. However, note that the required image will be automatically downloaded by the `runner.sh` script if it does not already exist.
+#### Supported Benchmarks:
+- `system_insights`
+- `hpl`
+- `cuda_samples`
+- `nccl`
+- `babelstream`
+- `osu`
+- `imagenet`
 
+#### Common Options:
 ```bash
-Usage: ./download_image.sh --benchmark <benchmark_name> --runtime <runtime> [--image-dir <path>]
+--runtime <runtime>            Container runtime (e.g., docker, singularity, apptainer)
+--image-dir <path>             (Optional) Path to check for the container image
+--hpl-dat <path>               Required for hpl benchmark
+--help                         Show usage help
 ```
 
-### Example Commands
-#### Run the HPL Benchmark:
+#### ImageNet Benchmark Options:
+```bash
+--gpus <int>                   Number of GPUs to use (default: 1)
+--batch-size <int>             Batch size (default: 256)
+--epochs <int>                 Number of training epochs (default: 5)
+--data-dir <path>              Dataset directory (default: ./tinyimagenet)
+--output-dir <path>            Output log directory (default: ./imagenet_output)
+```
+
+---
+
+## Example Commands
+
+#### Run HPL Benchmark:
 ```bash
 ./runner.sh --benchmark hpl --runtime singularity --hpl-dat ./HPL.dat
 ```
 
-#### Run the CUDA Samples Benchmark:
+#### Run CUDA Samples Benchmark:
 ```bash
 ./runner.sh --benchmark cuda_samples --runtime docker
 ```
 
-#### Document the NCCL Benchmark Image Download:
+#### Run NCCL Benchmark:
 ```bash
-./download_image.sh --benchmark nccl --runtime docker
+./runner.sh --benchmark nccl --runtime apptainer
 ```
 
-## Benchmark Scripts
-
-Each benchmark script in the `benchmarks/` directory can also be run independently. Below is a brief overview of their usage:
-
-### `system_insights.sh`
+#### Run BabelStream Benchmark:
 ```bash
-Usage: ./benchmarks/system_insights.sh --runtime <runtime> [--image-dir <path>]
+./runner.sh --benchmark babelstream --runtime singularity
 ```
 
-### `hpl.sh`
+#### Run OSU Micro-Benchmarks:
 ```bash
-Usage: ./benchmarks/hpl.sh --runtime <runtime> --hpl-dat <path> [--image-dir <path>]
+./runner.sh --benchmark osu --runtime singularity
 ```
 
-### `cuda_samples.sh`
+#### Run System Insights:
 ```bash
-Usage: ./benchmarks/cuda_samples.sh --runtime <runtime> [--image-dir <path>]
+./runner.sh --benchmark system_insights --runtime singularity
 ```
 
-### `nccl.sh`
+#### Run ImageNet ResNet50 Benchmark (Single GPU):
 ```bash
-Usage: ./benchmarks/nccl.sh --runtime <runtime> [--image-dir <path>]
+./runner.sh --benchmark imagenet --runtime singularity \
+  --data-dir /path/to/tinyimagenet \
+  --output-dir ./imagenet_output
 ```
 
-### `babelstream.sh`
+#### Run ImageNet with 4 GPUs, 512 Batch Size, and 10 Epochs:
 ```bash
-Usage: ./benchmarks/babelstream.sh --runtime <runtime> [--image-dir <path>]
+./runner.sh --benchmark imagenet --runtime singularity \
+  --gpus 4 \
+  --batch-size 512 \
+  --epochs 10 \
+  --data-dir /data/imagenet \
+  --output-dir ./results
 ```
 
-### `osu.sh`
-```bash
-Usage: ./benchmarks/osu.sh --runtime <runtime> [--image-dir <path>]
-```
+---
 
 ## Logs and Outputs
 - Each benchmark produces logs or performance metrics.
-- Outputs are saved in the current working directory or specified by the `--output` option where applicable.
+- Outputs are saved in the current working directory or specified by the `--output-dir` option where applicable.
+
+---
 
 ## Extending the Framework
+
 1. **Add a New Benchmark**:
-   - Create a new script in the `benchmarks/` directory.
-   - Follow the structure of the existing scripts for consistency.
+   - Create a new script in the `benchmarks/` directory following the current structure.
 
-2. **Modify Runner Script**:
-   - Add support for the new benchmark in `runner.sh`.
-
-
+2. **Update the Runner Script**:
+   - Modify `runner.sh` to include the new benchmark as a case option.
