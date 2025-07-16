@@ -51,7 +51,12 @@ while [[ $# -gt 0 ]]; do
       show_usage
       exit 0
       ;;
-    *)
+  
+  bert)
+    echo "Launching BERT benchmark..."
+    ./benchmarks/bert.sh --runtime "$runtime" "${forward_args[@]}"
+    ;;
+  *)
       forward_args+=("$1")
       shift
       ;;
@@ -106,6 +111,11 @@ case "$benchmark" in
   imagenet)
     echo "Launching ImageNet benchmark..."
     ./benchmarks/imagenet.sh --runtime "$runtime" "${forward_args[@]}"
+    ;;
+
+  bert)
+    echo "Launching BERT benchmark..."
+    ./benchmarks/bert.sh --runtime "$runtime" "${forward_args[@]}"
     ;;
   *)
     echo "Error: Unknown benchmark '$benchmark'."
