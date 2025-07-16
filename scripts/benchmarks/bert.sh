@@ -15,7 +15,6 @@ IMAGE="torch_sandbox"
 RUNTIME="singularity"
 PRINT_STEPS=1
 MAX_STEPS=10
-CF_FILE="${CONFIG_DIR}/ksl_bert_large.json"
 
 # Parse arguments
 while [[ $# -gt 0 ]]; do
@@ -49,6 +48,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+CF_FILE="${CONFIG_DIR}/ksl_bert_large.json"
 #mkdir -p "$OUTPUT_DIR"
 mkdir -p "$OUTPUT_DIR"
 abs_outdir=$(readlink -f "$OUTPUT_DIR")
@@ -83,10 +83,10 @@ $RUNTIME run --nv \
   --deepspeed_config $DEEPSPEED_JSON \
   --data_path_prefix /data \
   --use_nvidia_dataset \
-  --max_steps $MAX_STEPS &> ./output/output.txt
+  --max_steps $MAX_STEPS 2>&1 | tee ./output/output.txt
 
 # Run report generation
 $RUNTIME run --nv \
-  --bind "$(pwd)/app_benchmarks:/workspace/app_benchmarks","$OUTPUT_DIR:/output" \
+  --bind "$(pwd)/app_benchmarks:/workspace/app_benchmarks","$abs_outdir:/output" \
   $IMAGE \
   python3 $SRC_DIR/report.py --file /output/output.txt
